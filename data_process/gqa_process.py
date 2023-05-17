@@ -1,5 +1,7 @@
+import os
 import sys
-sys.path.append('../')
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(dir_path, '..'))
 import json
 from tqdm import tqdm
 from os.path import join as joinpath
@@ -145,8 +147,8 @@ class GQADataset:
         print('train_valid_inter', len(train_set.intersection(valid_set)))
 
 
-def prep_car_data(data_root = '../../../dataset/gqa/scene_graph'):
-    output_path = '../data/gqa'
+def prep_car_data(data_root=os.path.join(dir_path, '..', '..', 'dataset', 'gqa', 'scene_graph')):
+    output_path = os.path.join(dir_path, '..', 'data', 'gqa')
 
     fact_domain_path = joinpath(output_path, 'fact_domains')
     valid_domain_path = joinpath(output_path, 'valid_domains')
@@ -165,13 +167,13 @@ def prep_car_data(data_root = '../../../dataset/gqa/scene_graph'):
     # with open('car_img.txt') as f:
     #     img_id_ls = [line.strip() for line in f]
 
-    with open('un_merge.txt') as f:
+    with open(os.path.join(dir_path, 'un_merge.txt')) as f:
         for line in f:
             merge_name, parts = line.split(': ')
             names = parts.strip().split(',')
             for name in names:
                 un_mergDict[name] = merge_name
-    with open('rel_merge.txt') as f:
+    with open(os.path.join(dir_path, 'rel_merge.txt')) as f:
         for line in f:
             merge_name, parts = line.split(': ')
             names = parts.strip().split(',')
@@ -180,7 +182,7 @@ def prep_car_data(data_root = '../../../dataset/gqa/scene_graph'):
 
     freq_dict = {}
     # with open('car_un_freq.txt') as f:
-    with open('obj_freq.txt') as f:
+    with open(os.path.join(dir_path, 'obj_freq.txt')) as f:
         for line in f:
             parts = line.strip().split(' ')
             freq = int(parts[-1])
@@ -196,7 +198,7 @@ def prep_car_data(data_root = '../../../dataset/gqa/scene_graph'):
 
     freq_dict = {}
     # with open('car_rel_freq.txt') as f:
-    with open('rel_freq.txt') as f:
+    with open(os.path.join(dir_path, 'rel_freq.txt')) as f:
         for line in f:
             parts = line.strip().split(' ')
             freq = int(parts[-1])
