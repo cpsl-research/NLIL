@@ -62,7 +62,7 @@ def prep_dataset():
 
     elif 'gqa' in cmd_args.data_root:
 
-        tgt_pred_ls = [line for line in iterline('freq_gqa.txt')]
+        tgt_pred_ls = [line for line in iterline(os.path.join(cmd_args.data_root, 'freq_gqa.txt'))]
 
     elif 'evensucc' in cmd_args.data_root:
         tqdm.write('running even-odd..')
@@ -409,7 +409,7 @@ def kb_test(run_log_path):
 def mrr_and_hits(model_dict, dataset, domain_dict, tgt_pred_ls, bg_domain, fbd):
     # get one hard sample to get the learned formulas
     infer_temp, infer_numSample = 0.001, 1
-    num_const = len(bg_domain.const2ind_dict)
+    num_const = len(bg_domain.const2ind_dict) if bg_domain else 1
     n_eval = 20
 
     def const_iter(nc, nb, is_unp):
@@ -443,6 +443,7 @@ def mrr_and_hits(model_dict, dataset, domain_dict, tgt_pred_ls, bg_domain, fbd):
             yield l
 
     mh_dict = {}
+    # import pdb; pdb.set_trace()
     for tgt_p in tgt_pred_ls:
         # rotate over data w.r.t each p_star
         num_batches, epoch_iterator = dataset.sample(domain_dict,
@@ -455,8 +456,9 @@ def mrr_and_hits(model_dict, dataset, domain_dict, tgt_pred_ls, bg_domain, fbd):
 
         cand_val_ls = []
         pstar_bip_ls, pstar_unp_ls, pstar_unp_arr_ls, pstar_bip_arr_ls = [], [], [], []
+        cnt = 0
         for input_x, input_y, unp_ls, bip_ls, p_star in epoch_iterator:
-
+            cnt += 1; print(f'Processing input {cnt}', end='\r')
             if 'fb15k' in cmd_args.data_root:
                 bip_ls, input_x = fbd.filter(bip_ls, input_x, p_star, evaluate=True)
             assert bip_ls is not None
@@ -470,6 +472,7 @@ def mrr_and_hits(model_dict, dataset, domain_dict, tgt_pred_ls, bg_domain, fbd):
             pstar_unp_ls = unp_ls
             pstar_unp_arr_ls = input_x[0][0]
             pstar_bip_arr_ls = input_x[0][1]
+        print(f'Processing input {cnt}')
 
         cand_val = torch.cat(cand_val_ls, dim=0)
         is_unp = pred_register.is_unp(tgt_p)
